@@ -1,0 +1,5 @@
+# SISTEMASDEPUBLICACIONDELIBROS
+## SISTEMASDEPUBLICACIONDELIBROS en git
+
+## Registro de usuario
+- Registro de personal

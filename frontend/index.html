@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistema de Publicacion de Libros</title>
+    <link rel="stylesheet" href="./src/styles/output.css">
+</head>
+<body class="min-h-screen bg-slate-100 text-slate-900">
+    <div class="min-h-screen lg:flex">
+        <aside class="bg-slate-950 text-white lg:fixed lg:inset-y-0 lg:left-0 lg:flex lg:w-72 lg:flex-col">
+            <div class="flex items-center gap-3 border-b border-white/10 px-6 py-5">
+                <div class="flex h-11 w-11 items-center justify-center rounded-lg bg-emerald-500 text-lg font-bold text-slate-950">
+                    PL
+                </div>
+                <div>
+                    <p class="text-sm font-semibold uppercase text-emerald-300">Biblioteca Digital</p>
+                    <h1 class="text-lg font-bold">Publicacion de Libros</h1>
+                </div>
+            </div>
+
+            <nav class="flex gap-2 overflow-x-auto px-4 py-4 lg:flex-1 lg:flex-col lg:overflow-visible">
+                <a href="#" data-view="home" class="flex min-w-fit items-center gap-3 rounded-lg bg-white px-4 py-3 text-sm font-semibold text-slate-950 shadow-sm lg:min-w-0">
+                    <span class="icon-[mdi--home] text-xl" aria-hidden="true"></span>
+                    <span class="text-lg">Inicio</span>
+                </a>
+                <a href="#" data-view="users" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                    <span class="icon-[mdi--account-group-outline] text-xl" aria-hidden="true"></span>
+                    <span>Usuarios</span>
+                </a>
+                <a href="#" data-view="productos" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                    <span class="icon-[mdi--package-variant-closed] text-xl" aria-hidden="true"></span>
+                    <span>Productos</span>
+                </a>
+                <a href="#" data-view="libros" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                    <span class="icon-[mdi--book-open-page-variant-outline] text-xl" aria-hidden="true"></span>
+                    <span>Libros</span>
+                </a>
+                <a href="#" data-view="autores" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                    <span class="icon-[mdi--account-edit-outline] text-xl" aria-hidden="true"></span>
+                    <span>Autores</span>
+                </a>
+                <a href="#" data-view="lectores" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                    <span class="icon-[mdi--account-school-outline] text-xl" aria-hidden="true"></span>
+                    <span>Lectores</span>
+                </a>
+            </nav>
+
+            <div class="hidden border-t border-white/10 p-5 lg:block">
+                <p class="text-sm text-slate-400">Panel administrativo</p>
+                <p class="mt-1 text-sm font-semibold text-white">Gestion editorial</p>
+            </div>
+        </aside>
+
+        <div class="flex min-h-screen flex-1 flex-col lg:pl-72">
+            <header class="sticky top-0 z-10 border-b border-slate-200 bg-white/95 px-5 py-4 shadow-sm backdrop-blur lg:px-8">
+                <div class="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+                    <div>
+                        <p class="text-sm font-semibold text-emerald-700">Sistema de publicacion</p>
+                        <h2 class="text-2xl font-bold text-slate-950">Dashboard principal</h2>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <div class="hidden rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 sm:block">
+                            Administracion de libros
+                        </div>
+                        <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-sm font-bold text-white">
+                            A
+                        </div>
+                    </div>
+                </div>
+            </header>
+
+            <main class="flex-1 p-5 lg:p-8">
+                <section class="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-medium text-slate-500">Libros publicados</p>
+                        <p class="mt-3 text-3xl font-bold text-slate-950">128</p>
+                        <p class="mt-2 text-sm text-emerald-700">Catalogo activo</p>
+                    </article>
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-medium text-slate-500">Autores registrados</p>
+                        <p class="mt-3 text-3xl font-bold text-slate-950">42</p>
+                        <p class="mt-2 text-sm text-slate-500">Gestion editorial</p>
+                    </article>
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-medium text-slate-500">Lectores</p>
+                        <p class="mt-3 text-3xl font-bold text-slate-950">315</p>
+                        <p class="mt-2 text-sm text-slate-500">Usuarios activos</p>
+                    </article>
+                    <article class="rounded-lg border border-slate-200 bg-white p-5 shadow-sm">
+                        <p class="text-sm font-medium text-slate-500">Pendientes</p>
+                        <p class="mt-3 text-3xl font-bold text-slate-950">9</p>
+                        <p class="mt-2 text-sm text-amber-700">Revision necesaria</p>
+                    </article>
+                </section>
+
+                <section class="mt-6 grid gap-6 xl:grid-cols-3">
+                    <div class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm xl:col-span-2">
+                        <div class="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-slate-950">Area de trabajo</h3>
+                                <p class="text-sm text-slate-500">Aqui se cargaran las paginas seleccionadas desde el menu.</p>
+                            </div>
+                            <span class="w-fit rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-800">Activo</span>
+                        </div>
+                        <div id="app" class="mt-6 rounded-lg border border-dashed border-slate-300 bg-slate-50 p-5 text-slate-700">
+                            <h3 class="text-xl font-bold text-slate-950">Bienvenido al sistema de publicacion de libros</h3>
+                            <p class="mt-2 text-sm leading-6 text-slate-600">
+                                Selecciona una opcion del menu para administrar usuarios, productos, libros, autores o lectores.
+                            </p>
+                        </div>
+                    </div>
+
+                    <aside class="rounded-lg border border-slate-200 bg-white p-6 shadow-sm">
+                        <h3 class="text-lg font-bold text-slate-950">Acciones rapidas</h3>
+                        <div class="mt-5 space-y-3">
+                            <a href="#" data-view="libros" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                                Registrar nuevo libro
+                            </a>
+                            <a href="#" data-view="autores" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                                Administrar autores
+                            </a>
+                            <a href="#" data-view="users" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                                Ver usuarios
+                            </a>
+                        </div>
+                    </aside>
+                </section>
+            </main>
+        </div>
+    </div>
+
+    <script type="module" src="./src/main.js"></script>
+</body>
+</html>

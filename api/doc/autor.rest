@@ -1,0 +1,2 @@
+### consulta de autor
+GET http://sistemasdepublicaciondelibros.com/autor

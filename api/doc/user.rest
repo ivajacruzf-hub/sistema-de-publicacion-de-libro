@@ -1,0 +1,24 @@
+### consulta de usuarios 
+GET http://api.sistemasdepublicaciondelibros/users
+### Adicionar usuario
+POST http://api.sistemasdepublicaciondelibros/users
+Content-Type: application/json
+
+{
+  "username": "8935guhgu59",
+  "password": "ajskdlsga",
+  "rol": "Logsnr",
+  "activo": 8
+}
+
+### Modificar usuario
+PUT http://api.sistemasdepublicaciondelibros/users/17
+Content-Type: application/json
+
+{
+  "rol": "Personal",
+  "activo": 1
+}
+
+### Eliminar usuario
+DELETE http://api.sistemasdepublicaciondelibros/users/57

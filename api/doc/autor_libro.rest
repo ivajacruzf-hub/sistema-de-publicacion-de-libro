@@ -1,0 +1,2 @@
+### consulta de productos
+GET http://sistemasdepublicaciondelibros.com/autor_libro

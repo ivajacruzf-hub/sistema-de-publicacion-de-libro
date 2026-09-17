@@ -1,0 +1,25 @@
+### consulta de productos
+GET http://sistemasdepublicaciondelibros.com/productos
+
+### Modificar productos
+PUT http://sistemasdepublicaciondelibros.com/productos/1
+
+{
+    "cod_barras":"75010571006",
+    "descripcion":"Arroz Integral 2kg",
+    "stock":80,
+    "precio_unitario":18
+}
+
+### Adiccionar
+POST http://sistemasdepublicaciondelibros.com/productos
+
+{
+    "cod_barras":"75010571006",
+    "descripcion":"Arroz Integral 2kg",
+    "stock":80,
+    "precio_unitario":18
+}
+
+### Eliminar producto
+DELETE http://sistemasdepublicaciondelibros.com/productos/60
