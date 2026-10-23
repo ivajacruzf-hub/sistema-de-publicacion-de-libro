@@ -1,16 +1,26 @@
-const api_url = "http://api.sistemasdepublicaciondelibros";
+const configuredBaseUrl = document.querySelector('meta[name="api-base-url"]')?.content;
+const apiUrl = (window.API_BASE_URL || configuredBaseUrl || 'http://api.sistemasdepublicaciondelibros').replace(/\/+$/, '');
 
 const request = async (endpoint, options = {}) => {
-    const response = await fetch(`${api_url}/${endpoint.replace(/^\/+/, '')}`, {
+    const response = await fetch(`${apiUrl}/${endpoint.replace(/^\/+/, '')}`, {
         headers: {
             'Content-Type': 'application/json',
             ...(options.headers || {})
         },
         ...options
     });
-    const data = await response.json();
+    const responseText = await response.text();
+    let data;
+    try {
+        data = responseText ? JSON.parse(responseText) : null;
+    } catch {
+        data = null;
+    }
     if (!response.ok) {
-        throw new Error(data.error || `Error HTTP ${response.status}`);
+        throw new Error(data?.error || data?.message || `Error HTTP ${response.status}`);
+    }
+    if (data === null) {
+        throw new Error('La API devolvió una respuesta vacía o no válida');
     }
     return data;
 };

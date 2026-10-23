@@ -1,23 +1,48 @@
 import { getUserList, initUserCrud } from './components/UserList.js';
+import { initResourceCrud } from './components/ResourceCrud.js';
 
 const app = document.getElementById("app");
 
-const fallbackViews = {
-    productos: {
-        title: "Productos",
-        text: "Modulo preparado para administrar productos relacionados con la publicacion de libros."
-    },
+const resources = {
     libros: {
         title: "Libros",
-        text: "Modulo preparado para registrar, revisar y publicar libros dentro del sistema."
+        singular: "libro",
+        endpoint: "libros",
+        fields: [
+            { name: "isbn", label: "ISBN" },
+            { name: "titulo", label: "Título", required: true },
+            { name: "sinopsis", label: "Sinopsis", type: "textarea" },
+            {
+                name: "estado_publicacion",
+                label: "Estado de publicación",
+                type: "select",
+                options: ["En Redacción", "En Revisión", "Publicado", "Archivado"],
+                value: "En Redacción"
+            },
+            { name: "fecha_publicacion", label: "Fecha de publicación", type: "date" }
+        ]
     },
     autores: {
         title: "Autores",
-        text: "Modulo preparado para administrar la informacion de los autores."
+        singular: "autor",
+        endpoint: "autores",
+        fields: [
+            { name: "CI", label: "Cédula de identidad", required: true },
+            { name: "nombre", label: "Nombre", required: true },
+            { name: "apellidos", label: "Apellidos", required: true },
+            { name: "biografia", label: "Biografía", type: "textarea" }
+        ]
     },
     lectores: {
         title: "Lectores",
-        text: "Modulo preparado para gestionar lectores y sus lecturas."
+        singular: "lector",
+        endpoint: "lectores",
+        fields: [
+            { name: "CI", label: "Cédula de identidad", required: true },
+            { name: "nombre", label: "Nombre", required: true },
+            { name: "apellidos", label: "Apellidos", required: true },
+            { name: "email", label: "Correo electrónico", type: "email", required: true }
+        ]
     }
 };
 
@@ -36,28 +61,19 @@ function setActiveLink(viewName) {
     });
 }
 
-function renderFallback(viewName) {
-    const view = fallbackViews[viewName];
-
-    if (!view) {
-        app.innerHTML = `
-            <h3 class="text-xl font-bold text-slate-950">Pagina no disponible</h3>
-            <p class="mt-2 text-sm leading-6 text-slate-600">La seccion solicitada todavia no esta configurada.</p>
-        `;
-        return;
-    }
-
-    app.innerHTML = `
-        <h3 class="text-xl font-bold text-slate-950">${view.title}</h3>
-        <p class="mt-2 text-sm leading-6 text-slate-600">${view.text}</p>
-    `;
-}
-
 async function loadView(viewName) {
     setActiveLink(viewName);
 
     if (!viewFiles[viewName]) {
-        renderFallback(viewName);
+        const resource = resources[viewName];
+        if (resource) {
+            await initResourceCrud(app, resource);
+            return;
+        }
+        app.innerHTML = `
+            <h3 class="text-xl font-bold text-slate-950">Página no disponible</h3>
+            <p class="mt-2 text-sm leading-6 text-slate-600">La sección solicitada no está configurada.</p>
+        `;
         return;
     }
 
@@ -65,7 +81,7 @@ async function loadView(viewName) {
         const response = await fetch(viewFiles[viewName]);
 
         if (!response.ok) {
-            renderFallback(viewName);
+            app.innerHTML = '<p class="text-sm text-red-700">No se pudo cargar la página solicitada.</p>';
             return;
         }
 
@@ -76,7 +92,7 @@ async function loadView(viewName) {
             initUserCrud();
         }
     } catch (error) {
-        renderFallback(viewName);
+        app.innerHTML = '<p class="text-sm text-red-700">No se pudo conectar para cargar la página solicitada.</p>';
     }
 }
 
@@ -87,4 +103,4 @@ document.querySelectorAll("[data-view]").forEach((link) => {
     });
 });
 
-loadView("users");
+loadView("home");

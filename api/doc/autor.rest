@@ -1,2 +1,24 @@
-### consulta de autor
-GET http://sistemasdepublicaciondelibros.com/autor
+### consulta de autores
+GET http://api.sistemasdepublicaciondelibros/autores
+
+### Adicionar autor
+POST http://api.sistemasdepublicaciondelibros/autores
+Content-Type: application/json
+
+{
+  "CI": "9000100",
+  "nombre": "Mario",
+  "apellidos": "Vargas",
+  "biografia": "Autor de prueba"
+}
+
+### Modificar autor
+PUT http://api.sistemasdepublicaciondelibros/autores/1
+Content-Type: application/json
+
+{
+  "biografia": "Biografia actualizada"
+}
+
+### Eliminar autor
+DELETE http://api.sistemasdepublicaciondelibros/autores/1

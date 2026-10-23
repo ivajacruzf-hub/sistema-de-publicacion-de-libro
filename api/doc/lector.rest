@@ -1,2 +1,24 @@
-### consulta de productos
-GET http://sistemasdepublicaciondelibros.com/lector
+### consulta de lectores
+GET http://api.sistemasdepublicaciondelibros/lectores
+
+### Adicionar lector
+POST http://api.sistemasdepublicaciondelibros/lectores
+Content-Type: application/json
+
+{
+  "CI": "8000100",
+  "nombre": "Elena",
+  "apellidos": "Rios",
+  "email": "elena.rios@ejemplo.com"
+}
+
+### Modificar lector
+PUT http://api.sistemasdepublicaciondelibros/lectores/1
+Content-Type: application/json
+
+{
+  "email": "elena.actualizada@ejemplo.com"
+}
+
+### Eliminar lector
+DELETE http://api.sistemasdepublicaciondelibros/lectores/1

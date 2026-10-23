@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#10251f">
+    <title>Iniciar sesion | Publicacion de Libros</title>
+    <link rel="stylesheet" href="./frontend/src/styles/output.css">
+    <style>
+        .editorial-background {
+            background-image: linear-gradient(110deg, rgba(8, 30, 24, 0.94), rgba(18, 57, 45, 0.88)), repeating-linear-gradient(90deg, transparent 0 47px, rgba(236, 253, 245, 0.07) 47px 48px), repeating-linear-gradient(0deg, transparent 0 178px, rgba(236, 253, 245, 0.1) 178px 180px);
+        }
+
+        .paper-background {
+            background-image: repeating-linear-gradient(0deg, transparent 0 35px, rgba(15, 23, 42, 0.035) 35px 36px), linear-gradient(135deg, #ffffff, #f1f5f9);
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-slate-50 text-slate-900">
+    <main class="grid min-h-screen lg:grid-cols-2">
+        <section class="editorial-background relative flex min-h-64 flex-col justify-between overflow-hidden bg-emerald-950 px-8 py-8 text-white sm:px-12 lg:min-h-screen lg:px-16 lg:py-12">
+            <a class="relative flex w-fit items-center gap-3" href="./frontend/index.html" aria-label="Publicacion de Libros, inicio">
+                <span class="flex h-12 w-12 items-center justify-center rounded-lg bg-emerald-400 text-emerald-950 shadow-lg shadow-emerald-950/20">
+                    <span class="icon-[mdi--book-open-page-variant-outline] text-3xl" aria-hidden="true"></span>
+                </span>
+                <span class="text-sm font-bold leading-tight">PUBLICACION<br>DE LIBROS</span>
+            </a>
+
+            <div class="relative my-12 max-w-lg lg:my-auto lg:py-16">
+                <p class="mb-4 text-sm font-semibold uppercase text-emerald-300">Tu espacio editorial</p>
+                <h1 class="max-w-md text-4xl font-bold leading-tight sm:text-5xl">Cada libro comienza con una buena historia.</h1>
+                <p class="mt-5 max-w-md text-base leading-7 text-emerald-100/75">Administra publicaciones, autores y lectores desde un solo lugar.</p>
+                <div class="mt-10 flex h-36 max-w-sm items-end gap-3" aria-hidden="true">
+                    <div class="h-24 w-16 rounded-t-md border-l-4 border-emerald-200 bg-emerald-700 p-2 shadow-lg"><div class="h-full border border-emerald-300/50"></div></div>
+                    <div class="h-32 w-20 rounded-t-md border-l-4 border-amber-300 bg-amber-700 p-2 shadow-lg"><div class="h-full border border-amber-200/50"></div></div>
+                    <div class="h-28 w-16 rounded-t-md border-l-4 border-sky-200 bg-sky-800 p-2 shadow-lg"><div class="h-full border border-sky-100/50"></div></div>
+                    <div class="h-20 w-14 rounded-t-md border-l-4 border-rose-200 bg-rose-800 p-2 shadow-lg"><div class="h-full border border-rose-100/50"></div></div>
+                </div>
+            </div>
+
+            <p class="relative text-xs text-emerald-100/60">Panel de gestion editorial</p>
+        </section>
+
+        <section class="paper-background flex items-center justify-center px-6 py-12 sm:px-10 lg:px-16">
+            <div class="w-full max-w-md">
+                <div class="mb-8 lg:hidden"><p class="text-sm font-semibold uppercase text-emerald-700">Publicacion de Libros</p></div>
+                <p class="text-sm font-semibold text-emerald-700">Bienvenido de nuevo</p>
+                <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Iniciar sesion</h2>
+                <p class="mt-2 text-sm leading-6 text-slate-600">Ingresa tus datos para acceder al sistema.</p>
+
+                <form id="login-form" class="mt-8 space-y-5">
+                    <div>
+                        <label for="email" class="mb-2 flex items-center gap-2 text-sm font-medium text-slate-800">
+                            <span class="icon-[mdi--email-outline] text-lg text-emerald-800" aria-hidden="true"></span>
+                            Correo electronico
+                        </label>
+                        <input id="email" name="email" type="email" autocomplete="username" required placeholder="nombre@ejemplo.com" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <div>
+                        <div class="mb-2 flex items-center justify-between gap-3">
+                            <label for="password" class="flex items-center gap-2 text-sm font-medium text-slate-800">
+                                <span class="icon-[mdi--lock-outline] text-lg text-emerald-800" aria-hidden="true"></span>
+                                Contrasena
+                            </label>
+                        </div>
+                        <input id="password" name="password" type="password" autocomplete="current-password" required placeholder="Ingresa tu contrasena" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <label class="flex items-center gap-3 text-sm text-slate-600">
+                        <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 accent-emerald-800">
+                        Mantener mi sesion iniciada
+                    </label>
+                    <div class="flex gap-3">
+                        <button type="submit" class="flex flex-1 items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
+                            <span class="icon-[mdi--login] mr-2 text-lg" aria-hidden="true"></span>
+                            Ingresar al sistema
+                        </button>
+                        <button type="reset" class="flex flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
+                            <span class="icon-[mdi--close-circle-outline] mr-2 text-lg" aria-hidden="true"></span>
+                            Cancelar
+                        </button>
+                    </div>
+                </form>
+
+                <p class="mt-8 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">Acceso exclusivo para el equipo de publicacion.</p>
+            </div>
+        </section>
+    </main>
+    <script>
+        document.getElementById("login-form").addEventListener("submit", (event) => {
+            event.preventDefault();
+            window.location.assign("./frontend/index.html");
+        });
+    </script>
+</body>
+</html>

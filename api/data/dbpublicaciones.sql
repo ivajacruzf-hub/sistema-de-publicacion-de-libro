@@ -1,6 +1,4 @@
--- DROP DATABASE IF EXISTS dbpublicacion;
--- CREATE DATABASE dbpublicacion;
-USE defaultdb;
+-- Selecciona antes la base de datos indicada en api/.env (DB_NAME).
 
 -- tabla lector
 CREATE TABLE IF NOT EXISTS lector(

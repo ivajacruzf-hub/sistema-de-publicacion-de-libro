@@ -1,2 +1,25 @@
-### consulta de productos
-GET http://sistemasdepublicaciondelibros.com/libro
+### Consulta de libros
+GET http://api.sistemasdepublicaciondelibros/libros
+
+### Adicionar libro
+POST http://api.sistemasdepublicaciondelibros/libros
+Content-Type: application/json
+
+{
+  "isbn": "9780000000002",
+  "titulo": "Libro de prueba",
+  "sinopsis": "Ejemplo CRUD",
+  "estado_publicacion": "Publicado",
+  "fecha_publicacion": "2026-09-04"
+}
+
+### Modificar libro
+PUT http://api.sistemasdepublicaciondelibros/libros/1
+Content-Type: application/json
+
+{
+  "titulo": "Libro actualizado"
+}
+
+### Eliminar libro
+DELETE http://api.sistemasdepublicaciondelibros/libros/1

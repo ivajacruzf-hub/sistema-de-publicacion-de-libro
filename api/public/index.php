@@ -11,7 +11,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../src/router.php';
 require_once __DIR__ . '/../src/controllers/UserController.php';
-require_once __DIR__ . '/../src/controllers/ProductoController.php';
+require_once __DIR__ . '/../src/controllers/autor.php';
+require_once __DIR__ . '/../src/controllers/lector.php';
+require_once __DIR__ . '/../src/controllers/libro.php';
+require_once __DIR__ . '/../src/controllers/lectura_libro.php';
+require_once __DIR__ . '/../src/controllers/autor_libro.php';
 
 use App\Router;
 $route=new Router();
@@ -22,16 +26,36 @@ $route->add('POST','/users','UserController@add');
 $route->add('PUT','/users/{id}','UserController@update');
 $route->add('DELETE','/users/{id}','UserController@delete');
 
-// Rutas de productos
-$route->add('GET','/productos','ProductoController@getAll');
-$route->add('PUT','/productos/{id}','ProductoController@update');
-$route->add('POST','/productos','ProductoController@add');
-$route->add('DELETE','/productos/{id}','ProductoController@delete');
+// Autores
+foreach (['/autores', '/autor'] as $path) {
+    $route->add('GET', $path, 'autorController@getAll');
+    $route->add('POST', $path, 'autorController@add');
+    $route->add('PUT', $path . '/{id}', 'autorController@update');
+    $route->add('DELETE', $path . '/{id}', 'autorController@delete');
+}
 
+// Lectores
+foreach (['/lectores', '/lector'] as $path) {
+    $route->add('GET', $path, 'lectorController@getAll');
+    $route->add('POST', $path, 'lectorController@add');
+    $route->add('PUT', $path . '/{id}', 'lectorController@update');
+    $route->add('DELETE', $path . '/{id}', 'lectorController@delete');
+}
 
+// Libros
+foreach (['/libros', '/libro'] as $path) {
+    $route->add('GET', $path, 'libroController@getAll');
+    $route->add('POST', $path, 'libroController@add');
+    $route->add('PUT', $path . '/{id}', 'libroController@update');
+    $route->add('DELETE', $path . '/{id}', 'libroController@delete');
+}
 
+// Rutas de lectura de libros
+$route->add('GET','/lecturas-libro','lectura_librocontroller@getAll');
+$route->add('GET','/lectura-libro','lectura_librocontroller@getAll');
 
+// Rutas de relación autor-libro
+$route->add('GET','/autor-libro','autor_librocontroller@getAll');
+$route->add('GET','/autor_lector','autor_librocontroller@getAll');
 
 $route->run();
-
-

@@ -5,7 +5,12 @@ class UserController
 {
     public function getAll(): void
     {
+        try {
             $this->respond(Users::all());
+        } catch (Throwable $error) {
+            http_response_code(500);
+            $this->respond(['error' => 'No se pudieron consultar los usuarios']);
+        }
     }
 
         public function add(): void
@@ -94,6 +99,11 @@ class UserController
             }
             if (isset($data['rol'])) {
                 $data['rol'] = trim((string) $data['rol']);
+                if (!in_array($data['rol'], ['Lector', 'Autor'], true)) {
+                    http_response_code(422);
+                    $this->respond(['error' => 'El rol debe ser Lector o Autor']);
+                    return false;
+                }
             }
             if (isset($data['activo'])) {
                 $data['activo'] = (int) (bool) $data['activo'];

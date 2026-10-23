@@ -1,5 +1,7 @@
 import { api } from '../utils/api.js';
 
+const normalizeRole = (role) => role === 'Lector' ? 'Lector' : 'Autor';
+
 export const getUserList = async () => {
     const container = document.getElementById('userTableList');
     container.innerHTML = '<tr><td colspan="6">Cargando...</td></tr>';
@@ -13,7 +15,7 @@ export const getUserList = async () => {
             <tr>
                 <td>${user.id}</td>
                 <td>${user.username}</td>
-                <td>${user.rol}</td>
+                <td>${normalizeRole(user.rol)}</td>
                 <td>${user.activo ? 'Activo' : 'Inactivo'}</td>
                 <td>${user.fecha_registro ?? 'Sin registro'}</td>
                 <td class="flex gap-2 px-4 py-3">
@@ -43,8 +45,9 @@ const editUser = (users, id) => {
     document.getElementById('userId').value = user.id;
     document.getElementById('username').value = user.username;
     document.getElementById('password').value = '';
-    document.getElementById('rol').value = user.rol;
+    document.getElementById('rol').value = normalizeRole(user.rol);
     document.getElementById('activo').checked = Boolean(Number(user.activo));
+    document.getElementById('saveUserButton').textContent = 'Guardar cambios';
 };
 
 const deleteUser = async (id) => {
@@ -61,6 +64,7 @@ export const initUserCrud = () => {
         document.getElementById('password').value = '';
         document.getElementById('rol').value = 'Lector';
         document.getElementById('activo').checked = true;
+        document.getElementById('saveUserButton').textContent = 'Aceptar creación';
     });
     document.getElementById('cancelUserButton').addEventListener('click', () => form().classList.add('hidden'));
     form().addEventListener('submit', async (event) => {

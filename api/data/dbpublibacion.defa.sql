@@ -1,8 +1,8 @@
 -- 1. Insertar datos en la tabla 'usuario'
 -- Las contraseñas están representadas con hashes ficticios
 INSERT INTO usuario (username, password, rol, activo) VALUES
-('admin_jose', '$2y$10$e0MYzXyDx', 'Administrador', 1),
-('maria_personal', '$2y$10$92IXUNpkj', 'Personal', 1),
+('admin_jose', '$2y$10$e0MYzXyDx', 'Autor', 1),
+('maria_autora', '$2y$10$92IXUNpkj', 'Autor', 1),
 ('carlos_lector', '$2y$10$86pXUvSkq', 'Lector', 1);
 
 -- 2. Insertar datos en la tabla 'lector'

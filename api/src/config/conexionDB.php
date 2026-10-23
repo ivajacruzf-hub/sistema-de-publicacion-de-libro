@@ -44,14 +44,33 @@ class ConexionPDO
             UNIQUE KEY uq_usuarios_username (username)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
 
+        $db->exec("UPDATE usuarios SET rol = 'Autor' WHERE rol <> 'Lector'");
+
+        $legacyUser = $db->prepare("SELECT id FROM usuarios WHERE username = :username LIMIT 1");
+        $legacyUser->execute(['username' => 'maria_personal']);
+        $legacyUserId = $legacyUser->fetchColumn();
+        if ($legacyUserId !== false) {
+            $authorUsername = $db->prepare("SELECT id FROM usuarios WHERE username = :username LIMIT 1");
+            $authorUsername->execute(['username' => 'maria_autora']);
+            $username = $authorUsername->fetchColumn() === false
+                ? 'maria_autora'
+                : 'autora_' . $legacyUserId;
+
+            $renameUser = $db->prepare("UPDATE usuarios SET username = :new_username WHERE id = :id");
+            $renameUser->execute([
+                'new_username' => $username,
+                'id' => $legacyUserId
+            ]);
+        }
+
         $userCount = (int) $db->query("SELECT COUNT(*) FROM usuarios")->fetchColumn();
         if ($userCount === 0) {
             $insert = $db->prepare(
                 "INSERT INTO usuarios (username, password, rol, activo) VALUES (:username, :password, :rol, :activo)"
             );
             foreach ([
-                ["admin_jose", "Administrador"],
-                ["maria_personal", "Personal"],
+                ["admin_jose", "Autor"],
+                ["maria_autora", "Autor"],
                 ["carlos_lector", "Lector"]
             ] as [$username, $rol]) {
                 $insert->execute([
@@ -72,8 +91,8 @@ class ConexionPDO
             $stmt = self::connect()->prepare($sql);
             $stmt->execute($param);
             return $stmt->fetchAll();
-        } catch (Exception $e) {
-            return ["error" => $e->getMessage()];
+        } catch (Throwable $error) {
+            throw new RuntimeException("Existe error al consultar datos", 0, $error);
         }
     }
 
