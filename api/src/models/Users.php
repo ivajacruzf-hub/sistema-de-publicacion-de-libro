@@ -3,6 +3,20 @@ include_once __DIR__ . "/../config/conexionDB.php";
 
 class Users
 {
+    public static function authenticate(string $username, string $password): ?array
+    {
+        $users = ConexionPDO::query(
+            "SELECT id, username, password, rol, activo FROM usuarios WHERE username = :username LIMIT 1",
+            [':username' => $username]
+        );
+        if ($users === [] || !password_verify($password, $users[0]['password'])) {
+            return null;
+        }
+
+        unset($users[0]['password']);
+        return $users[0];
+    }
+
     public static function all(): array
     {
         return ConexionPDO::query("SELECT id, username, rol, activo, fecha_registro FROM usuarios ORDER BY id");

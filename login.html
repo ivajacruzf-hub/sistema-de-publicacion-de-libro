@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#10251f">
+    <meta name="api-base-url" content="http://api.sistemasdepublicaciondelibros">
     <title>Iniciar sesion | Publicacion de Libros</title>
     <link rel="stylesheet" href="./frontend/src/styles/output.css">
     <style>
@@ -45,16 +46,23 @@
             <div class="w-full max-w-md">
                 <div class="mb-8 lg:hidden"><p class="text-sm font-semibold uppercase text-emerald-700">Publicacion de Libros</p></div>
                 <p class="text-sm font-semibold text-emerald-700">Bienvenido de nuevo</p>
-                <h2 class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Iniciar sesion</h2>
-                <p class="mt-2 text-sm leading-6 text-slate-600">Ingresa tus datos para acceder al sistema.</p>
+                <h2 id="login-title" class="mt-2 text-3xl font-bold tracking-tight text-slate-950">Iniciar sesion</h2>
+                <p id="login-description" class="mt-2 text-sm leading-6 text-slate-600">Ingresa tus datos para acceder al sistema.</p>
 
                 <form id="login-form" class="mt-8 space-y-5">
                     <div>
-                        <label for="email" class="mb-2 flex items-center gap-2 text-sm font-medium text-slate-800">
+                        <label for="username" class="mb-2 flex items-center gap-2 text-sm font-medium text-slate-800">
                             <span class="icon-[mdi--email-outline] text-lg text-emerald-800" aria-hidden="true"></span>
-                            Correo electronico
+                            Usuario
                         </label>
-                        <input id="email" name="email" type="email" autocomplete="username" required placeholder="nombre@ejemplo.com" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                        <input id="username" name="username" type="text" autocomplete="username" required placeholder="Tu nombre de usuario" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <div>
+                        <label for="rol" class="mb-2 block text-sm font-medium text-slate-800">Ingresar como</label>
+                        <select id="rol" name="rol" required class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                            <option value="Lector">Lector</option>
+                            <option value="Autor">Autor</option>
+                        </select>
                     </div>
                     <div>
                         <div class="mb-2 flex items-center justify-between gap-3">
@@ -69,26 +77,142 @@
                         <input type="checkbox" name="remember" class="h-4 w-4 rounded border-slate-300 accent-emerald-800">
                         Mantener mi sesion iniciada
                     </label>
-                    <div class="flex gap-3">
-                        <button type="submit" class="flex flex-1 items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
+                    <div>
+                        <button type="submit" class="flex w-full items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
                             <span class="icon-[mdi--login] mr-2 text-lg" aria-hidden="true"></span>
                             Ingresar al sistema
-                        </button>
-                        <button type="reset" class="flex flex-1 items-center justify-center rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100 focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2">
-                            <span class="icon-[mdi--close-circle-outline] mr-2 text-lg" aria-hidden="true"></span>
-                            Cancelar
                         </button>
                     </div>
                 </form>
 
-                <p class="mt-8 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">Acceso exclusivo para el equipo de publicacion.</p>
+                <form id="registration-form" class="mt-8 space-y-5" hidden>
+                    <div>
+                        <label for="registration-username" class="mb-2 block text-sm font-medium text-slate-800">Usuario</label>
+                        <input id="registration-username" name="username" type="text" autocomplete="username" maxlength="100" required placeholder="Elige un nombre de usuario" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <div>
+                        <label for="registration-rol" class="mb-2 block text-sm font-medium text-slate-800">Crear cuenta como</label>
+                        <select id="registration-rol" name="rol" required class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                            <option value="Lector">Lector</option>
+                            <option value="Autor">Autor</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label for="registration-password" class="mb-2 block text-sm font-medium text-slate-800">Contrasena (minimo 6 caracteres)</label>
+                        <input id="registration-password" name="password" type="password" autocomplete="new-password" minlength="6" required placeholder="Crea una contrasena" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <div>
+                        <label for="registration-confirm-password" class="mb-2 block text-sm font-medium text-slate-800">Confirmar contrasena</label>
+                        <input id="registration-confirm-password" name="confirm-password" type="password" autocomplete="new-password" minlength="6" required placeholder="Repite tu contrasena" class="w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:ring-2 focus:ring-emerald-700/20">
+                    </div>
+                    <button type="submit" class="flex w-full items-center justify-center rounded-lg bg-emerald-800 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-950 focus:outline-none focus:ring-2 focus:ring-emerald-700 focus:ring-offset-2">
+                        Crear cuenta
+                    </button>
+                </form>
+                <p id="login-message" class="mt-4 text-sm text-red-700" role="alert" aria-live="polite"></p>
+                <button id="registration-toggle" type="button" aria-controls="registration-form" class="mt-5 w-full text-center text-sm font-semibold text-emerald-800 hover:text-emerald-950">
+                    ¿No tienes cuenta? Crear una cuenta
+                </button>
+
+                <p class="mt-8 border-t border-slate-200 pt-6 text-center text-xs leading-5 text-slate-500">Crea tu cuenta como lector o autor para acceder.</p>
             </div>
         </section>
     </main>
     <script>
-        document.getElementById("login-form").addEventListener("submit", (event) => {
+        const form = document.getElementById("login-form");
+        const registrationForm = document.getElementById("registration-form");
+        const registrationToggle = document.getElementById("registration-toggle");
+        const title = document.getElementById("login-title");
+        const description = document.getElementById("login-description");
+        const message = document.getElementById("login-message");
+        const configuredApiUrl = window.API_BASE_URL || document.querySelector('meta[name="api-base-url"]').content;
+        const apiUrl = configuredApiUrl.endsWith("/") ? configuredApiUrl.slice(0, -1) : configuredApiUrl;
+
+        function showRegistration(show) {
+            form.hidden = show;
+            registrationForm.hidden = !show;
+            title.textContent = show ? "Crear cuenta" : "Iniciar sesion";
+            description.textContent = show
+                ? "Completa tus datos y elige si quieres registrarte como lector o autor."
+                : "Ingresa tus datos para acceder al sistema.";
+            registrationToggle.textContent = show
+                ? "¿Ya tienes cuenta? Inicia sesion"
+                : "¿No tienes cuenta? Crear una cuenta";
+            message.textContent = "";
+            message.classList.remove("text-emerald-700");
+            message.classList.add("text-red-700");
+            (show ? registrationForm : form).querySelector("input").focus();
+        }
+
+        registrationToggle.addEventListener("click", () => showRegistration(registrationForm.hidden));
+
+        form.addEventListener("submit", async (event) => {
             event.preventDefault();
-            window.location.assign("./frontend/index.html");
+            const submitButton = form.querySelector('[type="submit"]');
+            submitButton.disabled = true;
+            message.textContent = "";
+
+            try {
+                const response = await fetch(`${apiUrl}/login`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: form.elements.username.value,
+                        password: form.elements.password.value,
+                        rol: form.elements.rol.value
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "No se pudo iniciar sesión");
+
+                localStorage.removeItem("publicacion-user");
+                sessionStorage.removeItem("publicacion-user");
+                const storage = form.elements.remember.checked ? localStorage : sessionStorage;
+                storage.setItem("publicacion-user", JSON.stringify(data));
+                window.location.assign("./frontend/index.html");
+            } catch (error) {
+                message.textContent = error.message || "No se pudo conectar con el servidor";
+            } finally {
+                submitButton.disabled = false;
+            }
+        });
+
+        registrationForm.addEventListener("submit", async (event) => {
+            event.preventDefault();
+            if (registrationForm.elements.password.value !== registrationForm.elements["confirm-password"].value) {
+                message.textContent = "Las contrasenas no coinciden.";
+                return;
+            }
+
+            const submitButton = registrationForm.querySelector('[type="submit"]');
+            submitButton.disabled = true;
+            message.textContent = "";
+
+            try {
+                const response = await fetch(`${apiUrl}/users`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        username: registrationForm.elements.username.value,
+                        password: registrationForm.elements.password.value,
+                        rol: registrationForm.elements.rol.value
+                    })
+                });
+                const data = await response.json();
+                if (!response.ok) throw new Error(data.error || "No se pudo crear la cuenta");
+
+                form.elements.username.value = registrationForm.elements.username.value;
+                form.elements.rol.value = registrationForm.elements.rol.value;
+                registrationForm.reset();
+                showRegistration(false);
+                message.textContent = "Cuenta creada correctamente. Ya puedes iniciar sesion.";
+                message.classList.remove("text-red-700");
+                message.classList.add("text-emerald-700");
+            } catch (error) {
+            	message.textContent = error.message || "No se pudo conectar con el servidor";
+            } finally {
+            	submitButton.disabled = false;
+            }
         });
     </script>
 </body>

@@ -1,7 +1,33 @@
 import { getUserList, initUserCrud } from './components/UserList.js';
 import { initResourceCrud } from './components/ResourceCrud.js';
 
+const storedSession = localStorage.getItem('publicacion-user') || sessionStorage.getItem('publicacion-user');
+let session = null;
+try {
+    session = storedSession ? JSON.parse(storedSession) : null;
+} catch {
+    session = null;
+}
+
+if (!session || !['Autor', 'Lector'].includes(session.rol)) {
+    localStorage.removeItem('publicacion-user');
+    sessionStorage.removeItem('publicacion-user');
+    window.location.replace('../login.html');
+} else {
 const app = document.getElementById("app");
+
+document.getElementById('sidebar-role').textContent = `Sesión ${session.rol.toLowerCase()}`;
+document.getElementById('sidebar-username').textContent = session.username;
+document.getElementById('header-role').textContent = session.rol;
+document.getElementById('user-initial').textContent = session.username.charAt(0).toUpperCase();
+document.querySelectorAll('[data-roles]').forEach((link) => {
+    link.hidden = !link.dataset.roles.split(',').includes(session.rol);
+});
+document.getElementById('logout-button').addEventListener('click', () => {
+    localStorage.removeItem('publicacion-user');
+    sessionStorage.removeItem('publicacion-user');
+    window.location.replace('../login.html');
+});
 
 const resources = {
     libros: {
@@ -104,3 +130,4 @@ document.querySelectorAll("[data-view]").forEach((link) => {
 });
 
 loadView("home");
+}

@@ -25,7 +25,7 @@
                     <span class="icon-[mdi--home] text-xl" aria-hidden="true"></span>
                     <span class="text-lg">Inicio</span>
                 </a>
-                <a href="#" data-view="users" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                <a href="#" data-view="users" data-roles="Autor" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
                     <span class="icon-[mdi--account-group-outline] text-xl" aria-hidden="true"></span>
                     <span>Usuarios</span>
                 </a>
@@ -33,19 +33,19 @@
                     <span class="icon-[mdi--book-open-page-variant-outline] text-xl" aria-hidden="true"></span>
                     <span>Libros</span>
                 </a>
-                <a href="#" data-view="autores" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                <a href="#" data-view="autores" data-roles="Autor" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
                     <span class="icon-[mdi--account-edit-outline] text-xl" aria-hidden="true"></span>
                     <span>Autores</span>
                 </a>
-                <a href="#" data-view="lectores" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
+                <a href="#" data-view="lectores" data-roles="Lector" class="flex min-w-fit items-center gap-3 rounded-lg px-4 py-3 text-sm font-semibold text-slate-300 transition hover:bg-white/10 hover:text-white lg:min-w-0">
                     <span class="icon-[mdi--account-school-outline] text-xl" aria-hidden="true"></span>
                     <span>Lectores</span>
                 </a>
             </nav>
 
             <div class="hidden border-t border-white/10 p-5 lg:block">
-                <p class="text-sm text-slate-400">Panel administrativo</p>
-                <p class="mt-1 text-sm font-semibold text-white">Gestion editorial</p>
+                <p class="text-sm text-slate-400" id="sidebar-role">Panel de usuario</p>
+                <p class="mt-1 text-sm font-semibold text-white" id="sidebar-username">Usuario</p>
             </div>
         </aside>
 
@@ -57,12 +57,13 @@
                         <h2 class="text-2xl font-bold text-slate-950">Dashboard principal</h2>
                     </div>
                     <div class="flex items-center gap-3">
-                        <div class="hidden rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600 sm:block">
-                            Administracion de libros
-                        </div>
+                        <span id="header-role" class="rounded-lg border border-slate-200 bg-slate-50 px-4 py-2 text-sm text-slate-600"></span>
                         <div class="flex h-10 w-10 items-center justify-center rounded-full bg-slate-950 text-sm font-bold text-white">
-                            A
+                            <span id="user-initial">U</span>
                         </div>
+                        <button id="logout-button" type="button" title="Cerrar sesión" aria-label="Cerrar sesión" class="flex h-10 w-10 items-center justify-center rounded-lg border border-slate-300 text-slate-700 transition hover:bg-slate-100">
+                            <span class="icon-[mdi--logout] text-xl" aria-hidden="true"></span>
+                        </button>
                     </div>
                 </div>
             </header>
@@ -114,10 +115,10 @@
                             <a href="#" data-view="libros" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
                                 Registrar nuevo libro
                             </a>
-                            <a href="#" data-view="autores" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                            <a href="#" data-view="autores" data-roles="Autor" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
                                 Administrar autores
                             </a>
-                            <a href="#" data-view="users" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
+                            <a href="#" data-view="users" data-roles="Autor" class="block rounded-lg border border-slate-200 px-4 py-3 text-sm font-semibold text-slate-700 transition hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-800">
                                 Ver usuarios
                             </a>
                         </div>

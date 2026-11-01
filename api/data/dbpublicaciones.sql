@@ -19,16 +19,15 @@ CREATE TABLE IF NOT EXISTS autor(
 ) ENGINE=InnoDB;
 
 CREATE TABLE IF NOT EXISTS usuarios (
-    id INT AUTO_INCREMENT PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL,
-    apellido VARCHAR(50) NOT NULL,
-    email VARCHAR(100) NOT NULL UNIQUE,
-    password_hash VARCHAR(255) NOT NULL, -- Se guarda la contraseña encriptada
-    rol VARCHAR(20) DEFAULT 'Usuario',
-    estado VARCHAR(15) DEFAULT 'Activo',
-    fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-
-) ENGINE=InnoDB;
+    id INT NOT NULL AUTO_INCREMENT,
+    username VARCHAR(100) NOT NULL,
+    password VARCHAR(255) NOT NULL,
+    rol VARCHAR(50) NOT NULL DEFAULT 'Lector',
+    activo TINYINT(1) NOT NULL DEFAULT 1,
+    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uq_usuarios_username (username)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 -- tabla libro / publicacion
 CREATE TABLE IF NOT EXISTS libro(
     id INT NOT NULL PRIMARY KEY AUTO_INCREMENT,

@@ -1,15 +1,51 @@
 <?php
-require_once "../src/models/Users.php";
+require_once __DIR__ . '/../models/Users.php';
 
 class UserController
 {
+    public function login(): void
+    {
+        $data = $this->readJson();
+        $username = trim((string) ($data['username'] ?? ''));
+        $password = (string) ($data['password'] ?? '');
+        $role = trim((string) ($data['rol'] ?? ''));
+
+        if ($username === '' || $password === '' || !in_array($role, ['Lector', 'Autor'], true)) {
+            http_response_code(422);
+            $this->respond(['error' => 'Usuario, contraseña y rol son obligatorios']);
+            return;
+        }
+
+        try {
+            $user = Users::authenticate($username, $password);
+            if ($user === null || !(bool) $user['activo'] || $user['rol'] !== $role) {
+                http_response_code(401);
+                $this->respond(['error' => 'Usuario, contraseña o rol incorrectos']);
+                return;
+            }
+
+            $this->respond([
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'rol' => $user['rol']
+            ]);
+        } catch (Throwable $error) {
+            error_log('Error al iniciar sesión: ' . $error);
+            http_response_code(500);
+            $this->respond(['error' => 'No se pudo iniciar sesión']);
+        }
+    }
+
     public function getAll(): void
     {
         try {
             $this->respond(Users::all());
         } catch (Throwable $error) {
+            error_log('Error al consultar usuarios: ' . $error);
             http_response_code(500);
-            $this->respond(['error' => 'No se pudieron consultar los usuarios']);
+            $this->respond([
+                'error' => 'No se pudieron consultar los usuarios. ' . ConexionPDO::connectionHint($error)
+            ]);
         }
     }
 
@@ -25,8 +61,13 @@ class UserController
                 http_response_code(201);
                 $this->respond(['id' => $id, 'message' => 'Usuario creado correctamente']);
             } catch (Throwable $error) {
+                error_log('Error al crear usuario: ' . $error);
                 http_response_code(409);
-                $message = str_contains($error->getMessage(), 'Duplicate entry')
+                $cause = $error;
+                while ($cause->getPrevious() !== null) {
+                    $cause = $cause->getPrevious();
+                }
+                $message = str_contains($cause->getMessage(), 'Duplicate entry')
                     ? 'Ese username ya existe, elige otro'
                     : 'No se pudo crear el usuario';
                 $this->respond(['error' => $message]);

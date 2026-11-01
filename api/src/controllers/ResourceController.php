@@ -13,8 +13,11 @@ abstract class ResourceController
         try {
             $this->respond(ResourceModel::all($this->table));
         } catch (Throwable $error) {
+            error_log("Error al consultar {$this->table}: " . $error);
             http_response_code(500);
-            $this->respond(['error' => 'No se pudieron consultar los registros']);
+            $this->respond([
+                'error' => "No se pudieron consultar {$this->table}. " . ConexionPDO::connectionHint($error)
+            ]);
         }
     }
 

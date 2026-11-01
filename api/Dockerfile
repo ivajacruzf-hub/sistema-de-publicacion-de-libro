@@ -7,7 +7,9 @@ RUN docker-php-ext-install pdo_mysql \
 # 2. Configurar correctamente la raiz del documento en Apache
 ENV APACHE_DOCUMENT_ROOT=/var/www/html/public
 RUN sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/sites-available/*.conf \
-    && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf
+    && sed -ri -e 's!/var/www/html!${APACHE_DOCUMENT_ROOT}!g' /etc/apache2/apache2.conf /etc/apache2/conf-available/*.conf \
+    && printf '<Directory %s>\n    AllowOverride All\n</Directory>\n' "$APACHE_DOCUMENT_ROOT" > /etc/apache2/conf-available/public-api.conf \
+    && a2enconf public-api
 
 # 3. Configurar el directorio de trabajo y copiar archivos
 WORKDIR /var/www/html

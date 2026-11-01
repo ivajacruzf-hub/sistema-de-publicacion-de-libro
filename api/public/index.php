@@ -7,7 +7,7 @@ header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
     http_response_code(204);
     exit;
-}.
+}
 
 require_once __DIR__ . '/../src/router.php';
 require_once __DIR__ . '/../src/controllers/UserController.php';
@@ -20,6 +20,7 @@ require_once __DIR__ . '/../src/controllers/autor_libro.php';
 use App\Router;
 $route=new Router();
 // Rutas de usuarios
+$route->add('POST','/login','UserController@login');
 $route->add('GET','/','UserController@getAll');
 $route->add('GET','/users','UserController@getAll');
 $route->add('POST','/users','UserController@add');
