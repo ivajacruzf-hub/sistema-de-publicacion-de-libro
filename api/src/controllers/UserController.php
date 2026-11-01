@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../models/Users.php';
+require_once __DIR__ . '/../security/ApiAuth.php';
 
 class UserController
 {
@@ -27,7 +28,8 @@ class UserController
             $this->respond([
                 'id' => $user['id'],
                 'username' => $user['username'],
-                'rol' => $user['rol']
+                'rol' => $user['rol'],
+                'token' => ApiAuth::issueToken($user)
             ]);
         } catch (Throwable $error) {
             error_log('Error al iniciar sesión: ' . $error);

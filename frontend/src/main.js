@@ -10,7 +10,7 @@ try {
     session = null;
 }
 
-if (!session || !['Autor', 'Lector'].includes(session.rol)) {
+if (!session || !session.token || !['Autor', 'Lector'].includes(session.rol)) {
     localStorage.removeItem('publicacion-user');
     sessionStorage.removeItem('publicacion-user');
     window.location.replace('../login.html');
@@ -69,6 +69,7 @@ const resources = {
             { name: "isbn", label: "ISBN" },
             { name: "titulo", label: "Título", required: true },
             { name: "sinopsis", label: "Sinopsis", type: "textarea" },
+            { name: "genero", label: "Género" },
             {
                 name: "estado_publicacion",
                 label: "Estado de publicación",
@@ -90,6 +91,26 @@ const resources = {
             { name: "biografia", label: "Biografía", type: "textarea" }
         ]
     },
+    misLibros: {
+        title: "mis libros",
+        singular: "libro",
+        endpoint: "mis-libros",
+        fields: [
+            { name: "titulo", label: "Título", required: true },
+            { name: "sinopsis", label: "Descripción", type: "textarea" },
+            { name: "portada", label: "URL de portada", type: "url" },
+            { name: "genero", label: "Género" },
+            { name: "isbn", label: "ISBN" },
+            {
+                name: "estado_publicacion",
+                label: "Estado de publicación",
+                type: "select",
+                options: ["En Redacción", "En Revisión", "Publicado", "Archivado"],
+                value: "En Redacción"
+            },
+            { name: "fecha_publicacion", label: "Fecha de publicación", type: "date" }
+        ]
+    },
     busqueda: {
         title: "Búsqueda de libros",
         singular: "libro",
@@ -108,6 +129,57 @@ const viewFiles = {
     users: "./src/views/user.html"
 };
 
+async function loadAuthorWorkspace() {
+    app.innerHTML = '';
+    const section = document.createElement('section');
+    section.className = 'rounded-xl border border-slate-200 bg-white p-4 shadow-sm sm:p-6';
+    const heading = document.createElement('div');
+    heading.className = 'mb-5';
+    const title = document.createElement('h3');
+    title.className = 'text-xl font-bold text-slate-950';
+    title.textContent = 'Espacio del autor';
+    const description = document.createElement('p');
+    description.className = 'mt-1 text-sm text-slate-600';
+    description.textContent = 'Administra tus libros o consulta el directorio de autores.';
+    heading.append(title, description);
+
+    const tabs = document.createElement('div');
+    tabs.className = 'mb-5 flex flex-wrap gap-2 border-b border-slate-200 pb-3';
+    tabs.setAttribute('role', 'tablist');
+    const panel = document.createElement('div');
+    const tabDefinitions = [
+        { label: 'Mis libros', resource: resources.misLibros },
+        { label: 'Directorio de autores', resource: resources.autores }
+    ];
+
+    for (const [index, tab] of tabDefinitions.entries()) {
+        const button = document.createElement('button');
+        button.type = 'button';
+        button.className = 'rounded-lg px-4 py-2 text-sm font-semibold transition';
+        button.setAttribute('role', 'tab');
+        button.setAttribute('aria-selected', index === 0 ? 'true' : 'false');
+        button.textContent = tab.label;
+        button.addEventListener('click', async () => {
+            for (const sibling of tabs.querySelectorAll('[role="tab"]')) {
+                const active = sibling === button;
+                sibling.setAttribute('aria-selected', active ? 'true' : 'false');
+                sibling.className = active
+                    ? 'rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white'
+                    : 'rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+            }
+            await initResourceCrud(panel, tab.resource);
+        });
+        button.className = index === 0
+            ? 'rounded-lg bg-emerald-800 px-4 py-2 text-sm font-semibold text-white'
+            : 'rounded-lg px-4 py-2 text-sm font-semibold text-slate-600 transition hover:bg-slate-100';
+        tabs.append(button);
+    }
+
+    section.append(heading, tabs, panel);
+    app.append(section);
+    await initResourceCrud(panel, resources.misLibros);
+}
+
 function setActiveLink(viewName) {
     document.querySelectorAll("[data-view]").forEach((link) => {
         const isActive = link.dataset.view === viewName;
@@ -122,6 +194,10 @@ async function loadView(viewName) {
     setActiveLink(viewName);
 
     if (!viewFiles[viewName]) {
+        if (viewName === 'autores' && session.rol === 'Autor') {
+            await loadAuthorWorkspace();
+            return;
+        }
         const resource = resources[viewName];
         if (resource) {
             await initResourceCrud(app, resource);

@@ -1,7 +1,7 @@
 <?php
 header('Content-Type: application/json; charset=UTF-8');
 header('Access-Control-Allow-Origin: *');
-header('Access-Control-Allow-Headers: Content-Type');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS');
 
 if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
@@ -46,6 +46,11 @@ foreach (['/lectores', '/lector'] as $path) {
 }
 
 // Libros
+$route->add('GET','/mis-libros','libroController@getMine');
+$route->add('POST','/mis-libros','libroController@addMine');
+$route->add('PUT','/mis-libros/{id}','libroController@updateMine');
+$route->add('DELETE','/mis-libros/{id}','libroController@deleteMine');
+
 foreach (['/libros', '/libro'] as $path) {
     $route->add('GET', $path, 'libroController@getAll');
     $route->add('POST', $path, 'libroController@add');

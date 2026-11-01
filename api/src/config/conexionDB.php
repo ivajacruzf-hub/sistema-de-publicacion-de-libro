@@ -54,6 +54,7 @@ class ConexionPDO
 
         self::migrateUsersTable($db);
         self::makeLegacyUserFieldsOptional($db);
+        self::migrateBookOwnership($db);
         $db->exec("UPDATE usuarios SET rol = 'Autor' WHERE rol <> 'Lector'");
 
         $legacyUser = $db->prepare("SELECT id FROM usuarios WHERE username = :username LIMIT 1");
@@ -93,6 +94,63 @@ class ConexionPDO
         }
 
         self::$schemaReady = true;
+    }
+
+    private static function migrateBookOwnership(PDO $db): void
+    {
+        $table = $db->prepare(
+            "SELECT 1 FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro'"
+        );
+        $table->execute();
+        if ($table->fetchColumn() === false) {
+            return;
+        }
+
+        if (!self::hasBookColumn($db, 'genero')) {
+            $db->exec('ALTER TABLE libro ADD genero VARCHAR(100) NULL');
+        }
+        if (!self::hasBookColumn($db, 'cod_usuario')) {
+            $db->exec('ALTER TABLE libro ADD cod_usuario INT NULL');
+        }
+
+        $indexes = $db->query('SHOW INDEX FROM libro')->fetchAll(PDO::FETCH_ASSOC);
+        $hasOwnerIndex = false;
+        foreach ($indexes as $index) {
+            if ($index['Column_name'] === 'cod_usuario') {
+                $hasOwnerIndex = true;
+                break;
+            }
+        }
+        if (!$hasOwnerIndex) {
+            $db->exec('ALTER TABLE libro ADD INDEX idx_libro_cod_usuario (cod_usuario)');
+        }
+
+        $foreignKey = $db->prepare(
+            "SELECT 1 FROM information_schema.KEY_COLUMN_USAGE
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = 'libro'
+               AND COLUMN_NAME = 'cod_usuario'
+               AND REFERENCED_TABLE_NAME = 'usuarios'"
+        );
+        $foreignKey->execute();
+        if ($foreignKey->fetchColumn() === false) {
+            $db->exec(
+                'ALTER TABLE libro
+                 ADD CONSTRAINT fk_libro_usuario
+                 FOREIGN KEY (cod_usuario) REFERENCES usuarios(id) ON DELETE SET NULL'
+            );
+        }
+    }
+
+    private static function hasBookColumn(PDO $db, string $column): bool
+    {
+        $statement = $db->prepare(
+            "SELECT 1 FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA = DATABASE() AND TABLE_NAME = 'libro' AND COLUMN_NAME = :column"
+        );
+        $statement->execute(['column' => $column]);
+        return $statement->fetchColumn() !== false;
     }
 
     private static function migrateUsersTable(PDO $db): void

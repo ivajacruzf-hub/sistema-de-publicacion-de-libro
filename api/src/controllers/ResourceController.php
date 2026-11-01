@@ -79,7 +79,7 @@ abstract class ResourceController
         }
     }
 
-    private function readJson(): ?array
+    protected function readJson(): ?array
     {
         $data = json_decode(file_get_contents('php://input'), true);
         if (!is_array($data)) {
@@ -90,7 +90,7 @@ abstract class ResourceController
         return $data;
     }
 
-    private function validate(array &$data, bool $creating): bool
+    protected function validate(array &$data, bool $creating): bool
     {
         $unknown = array_diff(array_keys($data), $this->fields);
         if ($unknown !== []) {
@@ -138,7 +138,7 @@ abstract class ResourceController
         return array_combine($this->keyFields, $ids);
     }
 
-    private function respond(array $data): void
+    protected function respond(array $data): void
     {
         echo json_encode($data, JSON_UNESCAPED_UNICODE);
     }

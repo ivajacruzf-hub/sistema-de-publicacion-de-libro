@@ -34,8 +34,13 @@ CREATE TABLE IF NOT EXISTS libro(
     isbn VARCHAR(20) UNIQUE,
     titulo VARCHAR(150) NOT NULL,
     sinopsis TEXT,
+    portada VARCHAR(2048),
+    genero VARCHAR(100),
     estado_publicacion ENUM('En Redacción', 'En Revisión', 'Publicado', 'Archivado') NOT NULL DEFAULT 'En Redacción',
-    fecha_publicacion DATE
+    fecha_publicacion DATE,
+    cod_usuario INT NULL,
+    INDEX idx_libro_cod_usuario (cod_usuario),
+    FOREIGN KEY (cod_usuario) REFERENCES usuarios(id) ON DELETE SET NULL
 ) ENGINE=InnoDB;
 
 -- tabla relacional autor_libro

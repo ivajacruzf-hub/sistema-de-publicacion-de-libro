@@ -1,10 +1,22 @@
 const configuredBaseUrl = document.querySelector('meta[name="api-base-url"]')?.content;
 const apiUrl = (window.API_BASE_URL || configuredBaseUrl || 'http://api.sistemasdepublicaciondelibros').replace(/\/+$/, '');
 
+const getAccessToken = () => {
+    const storedSession = localStorage.getItem('publicacion-user') || sessionStorage.getItem('publicacion-user');
+    if (!storedSession) return null;
+    try {
+        return JSON.parse(storedSession).token || null;
+    } catch {
+        return null;
+    }
+};
+
 const request = async (endpoint, options = {}) => {
+    const token = getAccessToken();
     const response = await fetch(`${apiUrl}/${endpoint.replace(/^\/+/, '')}`, {
         headers: {
             'Content-Type': 'application/json',
+            ...(token ? { Authorization: `Bearer ${token}` } : {}),
             ...(options.headers || {})
         },
         ...options

@@ -1,25 +1,33 @@
-### Consulta de libros
+### Consultar el catálogo (solo lectura)
 GET http://api.sistemasdepublicaciondelibros/libros
 
-### Adicionar libro
-POST http://api.sistemasdepublicaciondelibros/libros
+### Listar libros propios del autor autenticado
+GET http://api.sistemasdepublicaciondelibros/mis-libros
+Authorization: Bearer {{token}}
+
+### Crear libro propio
+POST http://api.sistemasdepublicaciondelibros/mis-libros
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "isbn": "9780000000002",
   "titulo": "Libro de prueba",
   "sinopsis": "Ejemplo CRUD",
+  "genero": "Novela",
   "estado_publicacion": "Publicado",
   "fecha_publicacion": "2026-09-04"
 }
 
-### Modificar libro
-PUT http://api.sistemasdepublicaciondelibros/libros/1
+### Modificar libro propio
+PUT http://api.sistemasdepublicaciondelibros/mis-libros/1
 Content-Type: application/json
+Authorization: Bearer {{token}}
 
 {
   "titulo": "Libro actualizado"
 }
 
-### Eliminar libro
-DELETE http://api.sistemasdepublicaciondelibros/libros/1
+### Eliminar libro propio
+DELETE http://api.sistemasdepublicaciondelibros/mis-libros/1
+Authorization: Bearer {{token}}
