@@ -2,7 +2,269 @@ import { api } from '../utils/api.js';
 
 const buttonClass = 'rounded-lg px-3 py-2 text-sm font-semibold transition';
 
+const createSearchIcon = (className) => {
+    const namespace = 'http://www.w3.org/2000/svg';
+    const icon = document.createElementNS(namespace, 'svg');
+    icon.setAttribute('viewBox', '0 0 24 24');
+    icon.setAttribute('width', '24');
+    icon.setAttribute('height', '24');
+    icon.setAttribute('fill', 'none');
+    icon.setAttribute('stroke', 'currentColor');
+    icon.setAttribute('stroke-width', '2');
+    icon.setAttribute('stroke-linecap', 'round');
+    icon.setAttribute('stroke-linejoin', 'round');
+    icon.setAttribute('aria-hidden', 'true');
+    icon.setAttribute('class', className);
+
+    const lens = document.createElementNS(namespace, 'circle');
+    lens.setAttribute('cx', '10.5');
+    lens.setAttribute('cy', '10.5');
+    lens.setAttribute('r', '6.5');
+    const handle = document.createElementNS(namespace, 'path');
+    handle.setAttribute('d', 'm15.5 15.5 5 5');
+    icon.append(lens, handle);
+    return icon;
+};
+
+const initBookSearch = async (container, resource) => {
+    container.innerHTML = '';
+    const section = document.createElement('section');
+    section.className = 'mx-auto w-full max-w-4xl';
+
+    const heading = document.createElement('div');
+    heading.className = 'text-center';
+    const title = document.createElement('h3');
+    title.className = 'text-2xl font-bold text-slate-950';
+    title.textContent = resource.title;
+    const description = document.createElement('p');
+    description.className = 'mt-2 text-sm text-slate-600';
+    description.textContent = 'Encuentra libros por su título.';
+    heading.append(title, description);
+
+    const form = document.createElement('form');
+    form.className = 'relative mx-auto mt-6 flex w-full max-w-2xl flex-col gap-2 rounded-2xl border border-slate-200 bg-white p-3 shadow-lg shadow-slate-900/10 sm:flex-row sm:items-center';
+    const searchButton = document.createElement('button');
+    searchButton.type = 'submit';
+    searchButton.className = `${buttonClass} flex shrink-0 items-center justify-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-white hover:bg-emerald-950 disabled:cursor-not-allowed disabled:opacity-60`;
+    searchButton.disabled = true;
+    const buttonLabel = document.createElement('span');
+    buttonLabel.textContent = 'Buscar';
+    searchButton.append(createSearchIcon('h-5 w-5'), buttonLabel);
+
+    const inputWrapper = document.createElement('div');
+    inputWrapper.className = 'relative min-w-0 flex-1';
+    const searchIcon = createSearchIcon('pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400');
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.inputMode = 'search';
+    input.disabled = true;
+    input.name = 'book-title-search';
+    input.placeholder = 'Buscar libros por título...';
+    input.setAttribute('aria-label', 'Buscar libros por título');
+    input.setAttribute('aria-autocomplete', 'list');
+    input.setAttribute('aria-expanded', 'false');
+    input.autocomplete = 'off';
+    input.className = 'block w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-12 pr-4 text-sm text-slate-900 outline-none transition placeholder:text-slate-400 focus:border-emerald-700 focus:bg-white focus:ring-2 focus:ring-emerald-700/20 disabled:cursor-wait disabled:opacity-60';
+    const suggestions = document.createElement('ul');
+    suggestions.className = 'absolute left-0 right-0 top-full z-20 mt-2 hidden max-h-64 overflow-y-auto rounded-xl border border-slate-200 bg-white p-2 shadow-xl';
+    suggestions.setAttribute('role', 'listbox');
+    suggestions.setAttribute('aria-label', 'Sugerencias de libros');
+    inputWrapper.append(searchIcon, input, suggestions);
+    form.append(searchButton, inputWrapper);
+
+    const results = document.createElement('div');
+    results.className = 'mx-auto mt-6 w-full max-w-2xl';
+    results.setAttribute('aria-live', 'polite');
+    results.setAttribute('aria-atomic', 'true');
+    section.append(heading, form, results);
+    container.append(section);
+
+    let books = [];
+    let booksLoadError = null;
+    let hasSearched = false;
+    let submittedTerm = '';
+    let visibleBooks = [];
+
+    const showResults = () => {
+        results.replaceChildren();
+        if (!hasSearched) return;
+
+        if (booksLoadError) {
+            const errorMessage = document.createElement('p');
+            errorMessage.className = 'rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700';
+            errorMessage.textContent = booksLoadError;
+            results.append(errorMessage);
+            return;
+        }
+
+        const normalizedTerm = submittedTerm.trim().toLocaleLowerCase('es');
+        if (!normalizedTerm) {
+            const prompt = document.createElement('p');
+            prompt.className = 'rounded-xl border border-slate-200 bg-white px-5 py-4 text-center text-sm text-slate-600 shadow-sm';
+            prompt.textContent = 'Escribe un título para buscar libros.';
+            results.append(prompt);
+            return;
+        }
+
+        visibleBooks = books.filter((book) =>
+            String(book.titulo ?? '').toLocaleLowerCase('es').includes(normalizedTerm)
+        );
+
+        if (visibleBooks.length === 0) {
+            const emptyMessage = document.createElement('p');
+            emptyMessage.className = 'rounded-xl border border-slate-200 bg-white px-5 py-4 text-center text-sm text-slate-600 shadow-sm';
+            emptyMessage.textContent = 'No se encontraron libros';
+            results.append(emptyMessage);
+            return;
+        }
+
+        const list = document.createElement('ul');
+        list.className = 'space-y-3';
+        visibleBooks.forEach((book) => {
+            const item = document.createElement('li');
+            const resultButton = document.createElement('button');
+            resultButton.type = 'button';
+            resultButton.className = 'flex w-full items-center justify-between gap-4 rounded-xl border border-slate-200 bg-white px-5 py-4 text-left shadow-sm transition hover:border-emerald-300 hover:bg-emerald-50 focus:outline-none focus:ring-2 focus:ring-emerald-700/30';
+            const bookTitle = document.createElement('span');
+            bookTitle.className = 'font-semibold text-slate-900';
+            bookTitle.textContent = book.titulo || 'Libro sin título';
+            const bookStatus = document.createElement('span');
+            bookStatus.className = 'shrink-0 text-xs text-slate-500';
+            bookStatus.textContent = book.estado_publicacion ?? '';
+            resultButton.append(bookTitle, bookStatus);
+            resultButton.addEventListener('click', () => showBookDetails(book));
+            item.append(resultButton);
+            list.append(item);
+        });
+        results.append(list);
+    };
+
+    const showBookDetails = (book) => {
+        results.replaceChildren();
+        const backButton = document.createElement('button');
+        backButton.type = 'button';
+        backButton.className = `${buttonClass} mb-4 border border-slate-300 bg-white text-slate-700 hover:bg-slate-50`;
+        backButton.textContent = 'Volver a los resultados';
+        backButton.addEventListener('click', showResults);
+
+        const card = document.createElement('article');
+        card.className = 'rounded-2xl border border-slate-200 bg-white p-6 shadow-md sm:p-8';
+        const detailTitle = document.createElement('h4');
+        detailTitle.className = 'text-2xl font-bold text-slate-950';
+        detailTitle.textContent = book.titulo || 'Libro sin título';
+        card.append(detailTitle);
+
+        const details = [
+            ['ISBN', book.isbn],
+            ['Estado de publicación', book.estado_publicacion],
+            ['Fecha de publicación', book.fecha_publicacion],
+            ['Sinopsis', book.sinopsis]
+        ];
+        details.forEach(([label, value]) => {
+            if (value === null || value === undefined || value === '') return;
+            const detail = document.createElement('div');
+            detail.className = 'mt-5';
+            const detailLabel = document.createElement('h5');
+            detailLabel.className = 'text-sm font-semibold text-slate-700';
+            detailLabel.textContent = label;
+            const detailValue = document.createElement('p');
+            detailValue.className = 'mt-1 whitespace-pre-line text-sm leading-6 text-slate-600';
+            detailValue.textContent = String(value);
+            detail.append(detailLabel, detailValue);
+            card.append(detail);
+        });
+        results.append(backButton, card);
+    };
+
+    const renderSuggestions = () => {
+        suggestions.replaceChildren();
+        const term = input.value.trim().toLocaleLowerCase('es');
+        if (!term) {
+            suggestions.classList.add('hidden');
+            input.setAttribute('aria-expanded', 'false');
+            return;
+        }
+
+        const matches = books.filter((book) =>
+            String(book.titulo ?? '').toLocaleLowerCase('es').includes(term)
+        ).slice(0, 6);
+        if (matches.length === 0) {
+            suggestions.classList.add('hidden');
+            input.setAttribute('aria-expanded', 'false');
+            return;
+        }
+
+        matches.forEach((book) => {
+            const item = document.createElement('li');
+            const suggestion = document.createElement('button');
+            suggestion.type = 'button';
+            suggestion.setAttribute('role', 'option');
+            suggestion.className = 'w-full rounded-lg px-3 py-2 text-left text-sm text-slate-700 hover:bg-emerald-50 hover:text-emerald-900 focus:bg-emerald-50 focus:outline-none';
+            suggestion.textContent = book.titulo || 'Libro sin título';
+            suggestion.addEventListener('click', () => {
+                input.value = book.titulo ?? '';
+                suggestions.classList.add('hidden');
+                input.setAttribute('aria-expanded', 'false');
+                submittedTerm = input.value.trim();
+                hasSearched = true;
+                showResults();
+            });
+            item.append(suggestion);
+            suggestions.append(item);
+        });
+        suggestions.classList.remove('hidden');
+        input.setAttribute('aria-expanded', 'true');
+    };
+
+    input.addEventListener('input', renderSuggestions);
+    input.addEventListener('focus', renderSuggestions);
+    input.addEventListener('keydown', (event) => {
+        if (event.key === 'Escape') {
+            suggestions.classList.add('hidden');
+            input.setAttribute('aria-expanded', 'false');
+        }
+    });
+    form.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submittedTerm = input.value.trim();
+        hasSearched = true;
+        suggestions.classList.add('hidden');
+        input.setAttribute('aria-expanded', 'false');
+        showResults();
+    });
+
+    const loading = document.createElement('p');
+    loading.className = 'mt-6 text-center text-sm text-slate-500';
+    loading.textContent = 'Cargando catálogo...';
+    results.append(loading);
+    try {
+        const response = await api.get(resource.endpoint);
+        if (!Array.isArray(response)) {
+            throw new Error(response?.error || 'La API no devolvió una lista de libros');
+        }
+        books = response;
+        input.disabled = false;
+        searchButton.disabled = false;
+        results.replaceChildren();
+    } catch (error) {
+        booksLoadError = error.message || 'No se pudo cargar el catálogo de libros.';
+        input.disabled = false;
+        searchButton.disabled = false;
+        results.replaceChildren();
+        const errorMessage = document.createElement('p');
+        errorMessage.className = 'mt-6 rounded-xl border border-red-200 bg-red-50 px-5 py-4 text-sm text-red-700';
+        errorMessage.textContent = booksLoadError;
+        results.append(errorMessage);
+        console.error('Error al cargar libros para la búsqueda:', error);
+    }
+};
+
 export const initResourceCrud = async (container, resource) => {
+    if (resource.searchOnly) {
+        await initBookSearch(container, resource);
+        return;
+    }
+
     const canManage = !resource.readOnly;
     container.innerHTML = '';
     const heading = document.createElement('div');
@@ -100,17 +362,29 @@ export const initResourceCrud = async (container, resource) => {
     table.append(tableHead, tableBody);
     tableWrapper.append(table);
     let searchInput = null;
+    let searchForm = null;
+    let submittedSearchTerm = '';
+    let hasSearched = false;
     if (resource.searchable) {
+        searchForm = document.createElement('form');
+        searchForm.className = 'mt-5 flex gap-2';
+        const searchButton = document.createElement('button');
+        searchButton.type = 'submit';
+        searchButton.className = `${buttonClass} flex shrink-0 items-center gap-2 bg-emerald-800 text-white hover:bg-emerald-950`;
+        searchButton.innerHTML = '<span class="icon-[mdi--magnify] text-lg" aria-hidden="true"></span><span>Buscar</span>';
         searchInput = document.createElement('input');
-        searchInput.type = 'search';
+        searchInput.type = 'text';
+        searchInput.inputMode = 'search';
         searchInput.name = 'book-title-search';
         searchInput.placeholder = 'Buscar libro por título';
         searchInput.setAttribute('aria-label', 'Buscar libro por título');
-        searchInput.className = 'mt-5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700/20';
+        searchInput.autocomplete = 'off';
+        searchInput.className = 'block min-w-0 flex-1 rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700/20';
+        searchForm.append(searchButton, searchInput);
     }
     container.append(heading);
     if (canManage) container.append(form);
-    if (searchInput) container.append(searchInput);
+    if (searchForm) container.append(searchForm);
     container.append(status, tableWrapper);
 
     let records = [];
@@ -154,7 +428,7 @@ export const initResourceCrud = async (container, resource) => {
             return;
         }
 
-        const searchTerm = searchInput?.value.trim().toLocaleLowerCase('es') ?? '';
+        const searchTerm = submittedSearchTerm.toLocaleLowerCase('es');
         const visibleRecords = searchTerm
             ? records.filter((record) => String(record[resource.searchField || 'titulo'] ?? '').toLocaleLowerCase('es').includes(searchTerm))
             : (resource.searchOnly ? [] : records);
@@ -163,7 +437,7 @@ export const initResourceCrud = async (container, resource) => {
             const cell = document.createElement('td');
             cell.colSpan = resource.fields.length + (canManage ? 2 : 1);
             cell.className = 'px-4 py-6 text-center text-slate-500';
-            cell.textContent = resource.searchOnly && !searchTerm
+            cell.textContent = resource.searchOnly && (!searchTerm || !hasSearched)
                 ? 'Escribe un título para buscar libros.'
                 : records.length === 0 && !resource.searchOnly
                     ? 'No hay registros todavía.'
@@ -214,8 +488,8 @@ export const initResourceCrud = async (container, resource) => {
                 tableBody.append(row);
             });
         }
-        status.textContent = resource.searchOnly && !searchTerm
-            ? 'Ingresa un título para buscar.'
+        status.textContent = resource.searchOnly && (!searchTerm || !hasSearched)
+            ? 'Escribe un título y pulsa Buscar.'
             : searchTerm
                 ? `${visibleRecords.length} de ${records.length} libro(s) encontrados.`
                 : `${records.length} registro(s).`;
@@ -242,7 +516,12 @@ export const initResourceCrud = async (container, resource) => {
         }
     };
 
-    if (searchInput) searchInput.addEventListener('input', renderRows);
+    if (searchForm) searchForm.addEventListener('submit', (event) => {
+        event.preventDefault();
+        submittedSearchTerm = searchInput.value.trim();
+        hasSearched = true;
+        renderRows();
+    });
     if (canManage) createButton.addEventListener('click', () => openForm());
     if (canManage) cancelButton.addEventListener('click', closeForm);
     if (canManage) form.addEventListener('submit', async (event) => {
