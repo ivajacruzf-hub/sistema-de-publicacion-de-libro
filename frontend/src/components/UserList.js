@@ -58,15 +58,18 @@ const deleteUser = async (id) => {
 };
 
 export const initUserCrud = () => {
-    document.getElementById('newUserButton').addEventListener('click', () => {
-        form().classList.remove('hidden');
-        document.getElementById('userId').value = '';
-        document.getElementById('username').value = '';
-        document.getElementById('password').value = '';
-        document.getElementById('rol').value = 'Lector';
-        document.getElementById('activo').checked = true;
-        document.getElementById('saveUserButton').textContent = 'Aceptar creación';
-    });
+    const newUserButton = document.getElementById('newUserButton');
+    if (newUserButton) {
+        newUserButton.addEventListener('click', () => {
+            form().classList.remove('hidden');
+            document.getElementById('userId').value = '';
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('rol').value = 'Lector';
+            document.getElementById('activo').checked = true;
+            document.getElementById('saveUserButton').textContent = 'Aceptar creación';
+        });
+    }
     document.getElementById('cancelUserButton').addEventListener('click', () => form().classList.add('hidden'));
     form().addEventListener('submit', async (event) => {
         event.preventDefault();
