@@ -3,13 +3,14 @@ import { api } from '../utils/api.js';
 const buttonClass = 'rounded-lg px-3 py-2 text-sm font-semibold transition';
 
 export const initResourceCrud = async (container, resource) => {
+    const canManage = !resource.readOnly;
     container.innerHTML = '';
     const heading = document.createElement('div');
     heading.className = 'flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between';
     heading.innerHTML = `
         <div>
-            <h3 class="text-xl font-bold text-slate-950">Gestión de ${resource.title.toLowerCase()}</h3>
-            <p class="mt-1 text-sm text-slate-600">Crea, consulta, actualiza y elimina registros.</p>
+            <h3 class="text-xl font-bold text-slate-950">${resource.searchOnly ? resource.title : `Gestión de ${resource.title.toLowerCase()}`}</h3>
+            <p class="mt-1 text-sm text-slate-600">${canManage ? 'Crea, consulta, actualiza y elimina registros.' : resource.searchOnly ? 'Busca libros por su título.' : 'Consulta los libros disponibles.'}</p>
         </div>
     `;
 
@@ -17,7 +18,7 @@ export const initResourceCrud = async (container, resource) => {
     createButton.type = 'button';
     createButton.className = `${buttonClass} w-fit bg-slate-950 text-white hover:bg-slate-800`;
     createButton.textContent = `Nuevo ${resource.singular}`;
-    heading.append(createButton);
+    if (canManage) heading.append(createButton);
 
     const form = document.createElement('form');
     form.className = 'mt-5 hidden rounded-lg border border-slate-200 bg-slate-50 p-4';
@@ -85,7 +86,9 @@ export const initResourceCrud = async (container, resource) => {
     const tableHead = document.createElement('thead');
     tableHead.className = 'bg-slate-50 text-xs uppercase text-slate-500';
     const headerRow = document.createElement('tr');
-    ['ID', ...resource.fields.map((field) => field.label), 'Acciones'].forEach((label) => {
+    const headers = ['ID', ...resource.fields.map((field) => field.label)];
+    if (canManage) headers.push('Acciones');
+    headers.forEach((label) => {
         const cell = document.createElement('th');
         cell.className = 'px-4 py-3 font-semibold';
         cell.textContent = label;
@@ -96,9 +99,22 @@ export const initResourceCrud = async (container, resource) => {
     tableBody.className = 'divide-y divide-slate-100 text-slate-700';
     table.append(tableHead, tableBody);
     tableWrapper.append(table);
-    container.append(heading, form, status, tableWrapper);
+    let searchInput = null;
+    if (resource.searchable) {
+        searchInput = document.createElement('input');
+        searchInput.type = 'search';
+        searchInput.name = 'book-title-search';
+        searchInput.placeholder = 'Buscar libro por título';
+        searchInput.setAttribute('aria-label', 'Buscar libro por título');
+        searchInput.className = 'mt-5 block w-full rounded-lg border border-slate-300 bg-white px-4 py-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-emerald-700 focus:outline-none focus:ring-2 focus:ring-emerald-700/20';
+    }
+    container.append(heading);
+    if (canManage) container.append(form);
+    if (searchInput) container.append(searchInput);
+    container.append(status, tableWrapper);
 
     let records = [];
+    let loadError = null;
     let editingId = null;
 
     const closeForm = () => {
@@ -127,61 +143,88 @@ export const initResourceCrud = async (container, resource) => {
 
     const renderRows = () => {
         tableBody.replaceChildren();
-        if (records.length === 0) {
+        if (loadError) {
             const row = document.createElement('tr');
             const cell = document.createElement('td');
-            cell.colSpan = resource.fields.length + 2;
-            cell.className = 'px-4 py-6 text-center text-slate-500';
-            cell.textContent = 'No hay registros todavía.';
+            cell.colSpan = resource.fields.length + (canManage ? 2 : 1);
+            cell.className = 'px-4 py-6 text-center text-red-700';
+            cell.textContent = loadError;
             row.append(cell);
             tableBody.append(row);
             return;
         }
 
-        records.forEach((record) => {
+        const searchTerm = searchInput?.value.trim().toLocaleLowerCase('es') ?? '';
+        const visibleRecords = searchTerm
+            ? records.filter((record) => String(record[resource.searchField || 'titulo'] ?? '').toLocaleLowerCase('es').includes(searchTerm))
+            : (resource.searchOnly ? [] : records);
+        if (visibleRecords.length === 0) {
             const row = document.createElement('tr');
-            const idCell = document.createElement('td');
-            idCell.className = 'whitespace-nowrap px-4 py-3';
-            idCell.textContent = record.id ?? '—';
-            row.append(idCell);
-            resource.fields.forEach((field) => {
-                const cell = document.createElement('td');
-                cell.className = 'max-w-xs px-4 py-3';
-                cell.textContent = record[field.name] ?? '—';
-                row.append(cell);
-            });
-
-            const actionsCell = document.createElement('td');
-            actionsCell.className = 'whitespace-nowrap px-4 py-3';
-            const editButton = document.createElement('button');
-            editButton.type = 'button';
-            editButton.className = `${buttonClass} mr-2 bg-amber-100 text-amber-800 hover:bg-amber-200`;
-            editButton.textContent = 'Editar';
-            editButton.addEventListener('click', () => openForm(record));
-            const deleteButton = document.createElement('button');
-            deleteButton.type = 'button';
-            deleteButton.className = `${buttonClass} bg-red-100 text-red-800 hover:bg-red-200`;
-            deleteButton.textContent = 'Eliminar';
-            deleteButton.addEventListener('click', async () => {
-                if (!window.confirm(`¿Eliminar este registro de ${resource.title.toLowerCase()}?`)) return;
-                try {
-                    await api.delete(`${resource.endpoint}/${encodeURIComponent(record.id)}`);
-                    status.textContent = 'Registro eliminado correctamente.';
-                    await loadRecords();
-                } catch (error) {
-                    status.textContent = error.message;
-                    status.className = 'mt-4 text-sm text-red-700';
-                }
-            });
-            actionsCell.append(editButton, deleteButton);
-            row.append(actionsCell);
+            const cell = document.createElement('td');
+            cell.colSpan = resource.fields.length + (canManage ? 2 : 1);
+            cell.className = 'px-4 py-6 text-center text-slate-500';
+            cell.textContent = resource.searchOnly && !searchTerm
+                ? 'Escribe un título para buscar libros.'
+                : records.length === 0 && !resource.searchOnly
+                    ? 'No hay registros todavía.'
+                    : 'No se encontraron libros con ese título.';
+            row.append(cell);
             tableBody.append(row);
-        });
+        } else {
+            visibleRecords.forEach((record) => {
+                const row = document.createElement('tr');
+                const idCell = document.createElement('td');
+                idCell.className = 'whitespace-nowrap px-4 py-3';
+                idCell.textContent = record.id ?? '—';
+                row.append(idCell);
+                resource.fields.forEach((field) => {
+                    const cell = document.createElement('td');
+                    cell.className = 'max-w-xs px-4 py-3';
+                    cell.textContent = record[field.name] ?? '—';
+                    row.append(cell);
+                });
+
+                if (canManage) {
+                    const actionsCell = document.createElement('td');
+                    actionsCell.className = 'whitespace-nowrap px-4 py-3';
+                    const editButton = document.createElement('button');
+                    editButton.type = 'button';
+                    editButton.className = `${buttonClass} mr-2 bg-amber-100 text-amber-800 hover:bg-amber-200`;
+                    editButton.textContent = 'Editar';
+                    editButton.addEventListener('click', () => openForm(record));
+                    const deleteButton = document.createElement('button');
+                    deleteButton.type = 'button';
+                    deleteButton.className = `${buttonClass} bg-red-100 text-red-800 hover:bg-red-200`;
+                    deleteButton.textContent = 'Eliminar';
+                    deleteButton.addEventListener('click', async () => {
+                        if (!window.confirm(`¿Eliminar este registro de ${resource.title.toLowerCase()}?`)) return;
+                        try {
+                            await api.delete(`${resource.endpoint}/${encodeURIComponent(record.id)}`);
+                            status.textContent = 'Registro eliminado correctamente.';
+                            await loadRecords();
+                            window.dispatchEvent(new Event('dashboard:refresh-stats'));
+                        } catch (error) {
+                            status.textContent = error.message;
+                            status.className = 'mt-4 text-sm text-red-700';
+                        }
+                    });
+                    actionsCell.append(editButton, deleteButton);
+                    row.append(actionsCell);
+                }
+                tableBody.append(row);
+            });
+        }
+        status.textContent = resource.searchOnly && !searchTerm
+            ? 'Ingresa un título para buscar.'
+            : searchTerm
+                ? `${visibleRecords.length} de ${records.length} libro(s) encontrados.`
+                : `${records.length} registro(s).`;
     };
 
     const loadRecords = async () => {
         status.className = 'mt-4 text-sm text-slate-600';
         status.textContent = 'Cargando registros...';
+        loadError = null;
         tableBody.replaceChildren();
         try {
             const result = await api.get(resource.endpoint);
@@ -190,24 +233,19 @@ export const initResourceCrud = async (container, resource) => {
             }
             records = result;
             renderRows();
-            status.textContent = `${records.length} registro(s).`;
         } catch (error) {
             records = [];
-            const row = document.createElement('tr');
-            const cell = document.createElement('td');
-            cell.colSpan = resource.fields.length + 2;
-            cell.className = 'px-4 py-6 text-center text-red-700';
-            cell.textContent = error.message;
-            row.append(cell);
-            tableBody.append(row);
+            loadError = error.message;
+            renderRows();
             status.textContent = 'No se pudieron cargar los datos. Verifica la conexión de la API y la base de datos.';
             status.className = 'mt-4 text-sm text-red-700';
         }
     };
 
-    createButton.addEventListener('click', () => openForm());
-    cancelButton.addEventListener('click', closeForm);
-    form.addEventListener('submit', async (event) => {
+    if (searchInput) searchInput.addEventListener('input', renderRows);
+    if (canManage) createButton.addEventListener('click', () => openForm());
+    if (canManage) cancelButton.addEventListener('click', closeForm);
+    if (canManage) form.addEventListener('submit', async (event) => {
         event.preventDefault();
         formMessage.textContent = '';
         const data = {};
@@ -230,6 +268,7 @@ export const initResourceCrud = async (container, resource) => {
             status.className = 'mt-4 text-sm text-emerald-700';
             status.textContent = 'Registro guardado correctamente.';
             await loadRecords();
+            window.dispatchEvent(new Event('dashboard:refresh-stats'));
         } catch (error) {
             formMessage.textContent = error.message;
         } finally {

@@ -54,6 +54,7 @@ const deleteUser = async (id) => {
     if (!confirm('¿Eliminar este usuario?')) return;
     await api.delete(`/users/${id}`);
     await getUserList();
+    window.dispatchEvent(new Event('dashboard:refresh-stats'));
 };
 
 export const initUserCrud = () => {
@@ -85,6 +86,7 @@ export const initUserCrud = () => {
             await (id ? api.put(`/users/${id}`, data) : api.post('/users', data));
             form().classList.add('hidden');
             await getUserList();
+            window.dispatchEvent(new Event('dashboard:refresh-stats'));
         } catch (error) {
             document.getElementById('userFormMessage').textContent = error.message;
         }

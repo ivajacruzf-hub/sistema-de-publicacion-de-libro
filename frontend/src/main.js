@@ -1,5 +1,6 @@
 import { getUserList, initUserCrud } from './components/UserList.js';
 import { initResourceCrud } from './components/ResourceCrud.js';
+import { api } from './utils/api.js';
 
 const storedSession = localStorage.getItem('publicacion-user') || sessionStorage.getItem('publicacion-user');
 let session = null;
@@ -15,6 +16,35 @@ if (!session || !['Autor', 'Lector'].includes(session.rol)) {
     window.location.replace('../login.html');
 } else {
 const app = document.getElementById("app");
+const dashboardStats = {
+    libros_publicados: document.getElementById('stats-published-books'),
+    autores_registrados: document.getElementById('stats-authors'),
+    lectores: document.getElementById('stats-readers'),
+    pendientes: document.getElementById('stats-pending-books')
+};
+const dashboardStatsMessage = document.getElementById('dashboard-stats-message');
+
+async function loadDashboardStats() {
+    try {
+        const stats = await api.get('/stats');
+        Object.entries(dashboardStats).forEach(([key, element]) => {
+            element.textContent = stats[key].toLocaleString('es');
+        });
+        dashboardStatsMessage.hidden = true;
+        dashboardStatsMessage.textContent = '';
+    } catch (error) {
+        Object.values(dashboardStats).forEach((element) => {
+            element.textContent = '—';
+        });
+        dashboardStatsMessage.textContent = error.message || 'No se pudieron cargar los indicadores.';
+        dashboardStatsMessage.hidden = false;
+        console.error('Error al cargar indicadores del panel:', error);
+    }
+}
+
+loadDashboardStats();
+window.addEventListener('dashboard:refresh-stats', loadDashboardStats);
+window.setInterval(loadDashboardStats, 30000);
 
 document.getElementById('sidebar-role').textContent = `Sesión ${session.rol.toLowerCase()}`;
 document.getElementById('sidebar-username').textContent = session.username;
@@ -34,6 +64,7 @@ const resources = {
         title: "Libros",
         singular: "libro",
         endpoint: "libros",
+        readOnly: true,
         fields: [
             { name: "isbn", label: "ISBN" },
             { name: "titulo", label: "Título", required: true },
@@ -59,15 +90,15 @@ const resources = {
             { name: "biografia", label: "Biografía", type: "textarea" }
         ]
     },
-    lectores: {
-        title: "Lectores",
-        singular: "lector",
-        endpoint: "lectores",
+    busqueda: {
+        title: "Búsqueda de libros",
+        singular: "libro",
+        endpoint: "libros",
+        searchable: true,
+        searchOnly: true,
+        readOnly: true,
         fields: [
-            { name: "CI", label: "Cédula de identidad", required: true },
-            { name: "nombre", label: "Nombre", required: true },
-            { name: "apellidos", label: "Apellidos", required: true },
-            { name: "email", label: "Correo electrónico", type: "email", required: true }
+            { name: "titulo", label: "Título" }
         ]
     }
 };

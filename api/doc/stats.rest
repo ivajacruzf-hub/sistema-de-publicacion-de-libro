@@ -1,0 +1,2 @@
+### Indicadores reales del panel
+GET http://api.sistemasdepublicaciondelibros/stats

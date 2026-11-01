@@ -11,6 +11,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
 
 require_once __DIR__ . '/../src/router.php';
 require_once __DIR__ . '/../src/controllers/UserController.php';
+require_once __DIR__ . '/../src/controllers/DashboardController.php';
 require_once __DIR__ . '/../src/controllers/autor.php';
 require_once __DIR__ . '/../src/controllers/lector.php';
 require_once __DIR__ . '/../src/controllers/libro.php';
@@ -26,6 +27,7 @@ $route->add('GET','/users','UserController@getAll');
 $route->add('POST','/users','UserController@add');
 $route->add('PUT','/users/{id}','UserController@update');
 $route->add('DELETE','/users/{id}','UserController@delete');
+$route->add('GET','/stats','DashboardController@getStats');
 
 // Autores
 foreach (['/autores', '/autor'] as $path) {
